@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "collect-data-client"
+version = "0.1.0"
+description = "An application for collecting data about water usage"
+authors = ["ErykMika <264451@student.pwr.edu.pl>"]
+readme = "README.md"
+packages = [{include = "collect_data_client"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
