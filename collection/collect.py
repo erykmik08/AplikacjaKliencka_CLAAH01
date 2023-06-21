@@ -24,7 +24,8 @@ def main():
             print("    2. Dodaj klientow")
             print("    3. Dodaj odczyty")
             print("    4. Wypisz odczyty")
-            print("    5. Zapisz dane do pliku CSV")
+            print("    5. Usuń określone dane")
+            print("    6. Zapisz dane do pliku CSV")
             choice = input("Wybor > ")
 
             if choice.casefold() == "q":
@@ -38,6 +39,8 @@ def main():
             elif choice == "4":
                 wypisz(cur)
             elif choice == "5":
+                usun(conn, cur)
+            elif choice == "6":
                 zapisz_csv(cur)
             else:
                 print("Nie znaleziono takiej opcji!")
@@ -49,7 +52,7 @@ def main():
             
 def usun_db(conn, cur):
     try:
-        choice = input("Czy chcesz usunac stara baze danych (jezeli istnieje)? T/N > ")
+        choice = input("Czy chcesz usunac stara baze danych (jezeli istnieje)? T/t ")
         if choice.casefold() == "t":
             cur.executescript("""drop table if exists klienci;
                                  drop table if exists odczyty""")
@@ -99,17 +102,33 @@ def dodaj_klientow(conn, cur):
     return
 
 
+def wyswietl_klientow(cur):
+    wybor = input("Czy chcesz wyswietlic liste zapisanych klientow? T/t ")
+    if wybor.casefold() == "t":
+        cur.execute("select * from klienci")
+        print("ID\tImie\tNazwisko\tAdres")
+        for klient in cur.fetchall():
+            for atrybut in klient:
+                print(str(atrybut) + "\t", end="")
+            print()
+    return
+
+
+def wyswietl_odczyty(cur):
+    wybor = input("Czy chcesz wyswietlic liste zapisanych odczytow? T/t ")
+    if wybor.casefold() == "t":
+        cur.execute("select * from odczyty")
+        print("ID odczytu\tWartosc\tData odczytu\tID klienta")
+        for klient in cur.fetchall():
+            for atrybut in klient:
+                print(str(atrybut) + "\t", end="")
+            print()
+    return
+
+
 def dodaj_odczyty(conn, cur):
     try:
-        wybor = input("Czy chcesz pomocniczno wyswietlic liste zapisanych klientow? (T/t) ")
-        if wybor.casefold() == "t":
-            cur.execute("select * from klienci")
-            print("ID\tImie\tNazwisko\tAdres")
-            for klient in cur.fetchall():
-                for atrybut in klient:
-                    print(str(atrybut) + "\t", end="")
-                print()
-                
+        wyswietl_klientow(cur)
         liczba_odczytow = int(input("Podaj ile odczytow chcesz dodac: "))
         for i in range(liczba_odczytow):
             print(f"Odczyt {i+1}")
@@ -136,6 +155,24 @@ def wypisz(cur):
     return
 
 
+def usun(conn, cur):
+    try:
+        wybor = input("Co chcesz usunac? K/k - klienci, inne - odczyty ")
+        if wybor.casefold() == "k":
+            wyswietl_klientow(cur)
+            id = int(input("Podaj ID klienta do usuniecia: "))
+            cur.execute(f"DELETE FROM klienci WHERE ID_klienta = {id}")
+            conn.commit()
+        else:
+            wyswietl_odczyty(cur)
+            id = int(input("Podaj ID odczytu do usuniecia: "))
+            cur.execute(f"DELETE FROM odczyty WHERE ID_odczytu = {id}")
+            conn.commit()
+    except Exception as ex:
+        print("Wystapil blad podczas usuwania danych! " + str(ex))
+    return  
+            
+            
 def zapisz_csv(cur):
     try:
         cur.execute("SELECT * FROM klienci")
