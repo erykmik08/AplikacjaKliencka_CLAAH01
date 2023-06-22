@@ -8,6 +8,7 @@ packages = [{include = "collect_data_client"}]
 
 [tool.poetry.dependencies]
 python = "^3.10"
+psycopg = "^3.1.9"
 
 
 [build-system]
